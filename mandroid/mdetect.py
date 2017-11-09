@@ -6,6 +6,7 @@ from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.svm import LinearSVC
 from mandroid.dataset_preprocessing import load_dataset
 from mandroid.dataset_preprocessing import vectorize
+from sklearn.metrics import confusion_matrix
 
 """
     This module is able to check is a given application is an Android malware.
@@ -22,35 +23,39 @@ def train_and_validate(X, y):
     """
     clf = LinearSVC(random_state=0)
     X = vectorize(X)
+    train_test_SVM(X, y, clf)
 
-    train_test_SVM(X, Y, clf)
-    #scores = cross_val_score(clf, X, Y, cv=10)
-    #print(scores)
-    #clf.fit(X, y)
     return
 
+
 def train_test_SVM(X, Y, clf):
-
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1)
+    # model = clf.fit(X_train, Y_train)
+    # prediction = model.predict(X_test)
+
+    # cross validation
+    ris_cross_val = cross_val_score(clf, X, Y, cv=10)
+
+    # confusion matrix
     model = clf.fit(X_train, Y_train)
-    result = model.predict(X_test)
-
-    merged_list=list(zip(result,Y_test))
-    #f = lambda x, y: if x(0)!=x(1)
-    def my_f(x):
-        if x[0]!=x[1] : return 1
-        return 0
-    f=my_f
-    errors=reduce(lambda x,y:x+y, map(f,merged_list))
-    print(errors)
-    print(X.shape)
-    #copyright anjel§
+    prediction = model.predict(X_test)
+    conf_mat = confusion_matrix(prediction, Y_test, [0, 1])
+    report(ris_cross_val, conf_mat, len(prediction))
 
 
+def report(cross_val, conf_mat, n_sample):
+    r="-----REPORT-----"
+    r+= "\nNumber of android apps : " + str(n_sample)
+    r += "\n10-Cross validation results :" + str(cross_val)
+    r +="\nConfusion matrix:\n"
+    r +="true negative : "+ str(conf_mat[0][0])+ "\nfalse negative : "+  str(conf_mat[0][1])+ "\nfalse positive : "+str(conf_mat[1][0])+ "\ntrue positive : "+ str(conf_mat[1][1])
+
+    print r
+
+
+X, Y = load_dataset("/Users/angelo/Desktop/drebin/feature_vectors",
+                   "/Users/angelo/Desktop/drebin/sha256_family.csv", 1000, 45)
 
 
 
-X, Y = load_dataset("C:\\Users\\Valerio\\Downloads\\Machine Learning\\HW\\drebin\\feature_vectors",
-                        "C:\\Users\\Valerio\\Downloads\\Machine Learning\\HW\\drebin\\sha256_family.csv", 1000, 1)
-
-train_and_validate(X,Y)
+train_and_validate(X, Y)

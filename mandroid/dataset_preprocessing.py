@@ -61,14 +61,16 @@ def load_dataset(dataset_path, malware_file_path, max_samples, percentage_malwar
     :param dataset_path: path of the drebin dataset
     :return: list of dictionaries containing files data.
     """
-    n_malware = int(max_samples*(percentage_malware/100))
+    n_malware = int(max_samples*(percentage_malware/100.0))
+
     n_goodware = int(max_samples - n_malware)
     data = []
     Y = np.zeros(n_malware + n_goodware)
     i = 0
     malware_hash = load_malware(malware_file_path)
 
-    print("n_malware " + str(n_malware) + ", n_goodware " + str(n_goodware))
+
+    #print("n_malware " + str(n_malware) + ", n_goodware " + str(n_goodware))
 
     for file in os.listdir(dataset_path):
         # load file data
@@ -100,7 +102,7 @@ def parse_file(dataset_path, file_name):
     :return: dictionary of features.
     """
     file_dict = {}
-    with open(dataset_path + "\\" + file_name, "r") as f:
+    with open(dataset_path + "/" + file_name, "r") as f:
         for line in f:
             file_dict[line.strip()] = True
     return file_dict
@@ -129,9 +131,10 @@ def load_malware(malware_file_path):
             (each sample in the file is a malware)
     """
     malware_hash = {}
-    with open(malware_file_path, newline='') as f:
+    with open(malware_file_path) as f:
         reader = csv.reader(f)
         for row in reader:
+
             malware_hash[row[0]] = True
 
     return malware_hash
