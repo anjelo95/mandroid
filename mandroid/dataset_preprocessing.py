@@ -62,7 +62,7 @@ def load_dataset(dataset_path, malware_file_path, max_samples, percentage_malwar
     :return: list of dictionaries containing files data.
     """
     n_malware = int(max_samples*(percentage_malware/100.0))
-
+    if (n_malware>4000): n_malware=5000
     n_goodware = int(max_samples - n_malware)
     data = []
     Y = np.zeros(n_malware + n_goodware)
